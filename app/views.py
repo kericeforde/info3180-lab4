@@ -7,6 +7,7 @@ from werkzeug.security import check_password_hash
 from app.models import UserProfile
 from app.forms import LoginForm
 from app.forms import UploadForm
+from flask import send_from_directory
 
 
 ###
@@ -76,6 +77,39 @@ def login():
 @login_manager.user_loader
 def load_user(id):
     return db.session.execute(db.select(UserProfile).filter_by(id=id)).scalar()
+
+
+def get_uploaded_images() :
+    """Retrieve files"""
+    upload = app.config['UPLOAD_FOLDER']
+    imglst = []
+
+    if os.path.exists(upload):
+        for file in os.listdir(upload):
+            if file.lower().endswith(('jpg', 'png', 'jpeg')):
+                imglst.append(file)
+
+    return imglst
+
+@app.route("/uploads/<filename>")
+def get_image(filename):
+    """Return specific image"""
+    return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
+
+@app.route('/files')
+@login_required
+def files():
+    images = get_uploaded_images()
+    return render_template('files.html', images=images)
+   
+@app.route('/logout')
+@login_required  
+def logout():
+    """Logs out the user ."""
+    logout_user()  
+    flash("You have been logged out successfully.", "info")
+    return redirect(url_for('home')) 
+
 
 ###
 # The functions below should be applicable to all Flask apps.
