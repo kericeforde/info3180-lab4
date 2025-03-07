@@ -33,14 +33,14 @@ def upload():
     form=UploadForm()
     # Validate file upload on submit
     if form.validate_on_submit():
-        # Get file data and save to your uploads folder
+        # Get file data and save uploads folder
         file = form.file.data
         name = secure_filename(file.filename)  # Secure the filename
         path = os.path.join(app.config['UPLOAD_FOLDER'],name)  
         file.save(path)  # Save the file
         flash('File Saved', 'success')
-        return redirect(url_for('home')) # Update this to redirect the user to a route that displays all uploaded image files
-
+        return redirect(url_for('home')) 
+   
     return render_template('upload.html' ,form=form)
 
 
